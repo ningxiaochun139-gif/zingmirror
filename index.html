@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1b1714">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>妆镜·Pro</title>
+<style>
+  :root, body[data-theme="editorial"]{
+    --frame:#1b1714; --screen-bg:#F4F0EA;
+    --txt:#2A2421; --txt-soft:#6B6157; --sub:#9A8F84;
+    --accent:#A8736B; --accent-2:#C6A368; --accent-soft:#EFE2DD;
+    --line:#E7DFD4; --surface:#FCFAF6; --blur:0px;
+    --btn-bg:#2A2421; --btn-fg:#F4F0EA; --chip-on-bg:#2A2421; --chip-on-fg:#F4F0EA;
+    --avatar-fg:#F4F0EA; --glow:none; --text-glow:none;
+    --bulbs-display:none; --sheet-bg:#F4F0EA; --input-bg:#fff; --tab-bg:rgba(252,250,246,.92);
+  }
+  body[data-theme="vanity"]{
+    --frame:#050403; --screen-bg:#0E0B09;
+    --txt:#F4EAD9; --txt-soft:#C8B69E; --sub:#9C8A76;
+    --accent:#F5C97B; --accent-2:#E7A79E; --accent-soft:rgba(245,201,123,.1);
+    --line:rgba(245,201,123,.16); --surface:rgba(38,30,25,.62); --blur:6px;
+    --btn-bg:linear-gradient(135deg,#F7D38C,#E0A24E); --btn-fg:#241a10;
+    --chip-on-bg:linear-gradient(135deg,#F7D38C,#E0A24E); --chip-on-fg:#241a10;
+    --avatar-fg:#241a10; --glow:0 0 16px rgba(245,201,123,.32); --text-glow:0 0 18px rgba(245,201,123,.32);
+    --bulbs-display:flex; --sheet-bg:#1A1411; --input-bg:rgba(245,201,123,.05); --tab-bg:rgba(20,14,11,.92);
+  }
+  body[data-theme="rose"]{
+    --frame:#3a2e30; --screen-bg:#FBF1F1;
+    --txt:#3A2E30; --txt-soft:#8A6F73; --sub:#B2989C;
+    --accent:#C77E8E; --accent-2:#D9A7A0; --accent-soft:#F7E2E5;
+    --line:#EFD9DC; --surface:#FFFFFF; --blur:0px;
+    --btn-bg:linear-gradient(135deg,#D08C9A,#A85E73); --btn-fg:#fff;
+    --chip-on-bg:linear-gradient(135deg,#D08C9A,#A85E73); --chip-on-fg:#fff;
+    --avatar-fg:#fff; --glow:none; --text-glow:none;
+    --bulbs-display:none; --sheet-bg:#FBF1F1; --input-bg:#fff; --tab-bg:rgba(255,255,255,.92);
+  }
+  body[data-theme="ink"]{
+    --frame:#060a0f; --screen-bg:#0F1620;
+    --txt:#E6ECF2; --txt-soft:#A9B6C4; --sub:#7C8A99;
+    --accent:#8FB7D9; --accent-2:#C9D6E2; --accent-soft:rgba(143,183,217,.12);
+    --line:rgba(143,183,217,.16); --surface:rgba(26,36,48,.6); --blur:6px;
+    --btn-bg:linear-gradient(135deg,#A7C8E2,#6E9BC2); --btn-fg:#0c1620;
+    --chip-on-bg:linear-gradient(135deg,#A7C8E2,#6E9BC2); --chip-on-fg:#0c1620;
+    --avatar-fg:#0c1620; --glow:0 0 16px rgba(143,183,217,.28); --text-glow:0 0 16px rgba(143,183,217,.28);
+    --bulbs-display:none; --sheet-bg:#141E2A; --input-bg:rgba(143,183,217,.06); --tab-bg:rgba(15,22,32,.92);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    background:var(--screen-bg);color:var(--txt);overflow:hidden;transition:background .4s ease,color .3s ease;
+    -webkit-user-select:none;user-select:none}
+  .serif{font-family:"Songti SC","STSong","Source Han Serif SC","Noto Serif CJK SC",Georgia,serif}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:520px;margin:0 auto;background:var(--screen-bg)}
+  .view{flex:1;overflow-y:auto;display:none;flex-direction:column;-webkit-overflow-scrolling:touch}
+  .view.active{display:flex}
+  .view::-webkit-scrollbar{display:none}
+  .pad{padding:6px 20px calc(20px + env(safe-area-inset-bottom))}
+  .muted{color:var(--sub);font-size:13px;margin:0;line-height:1.6}
+
+  .appbar{padding:calc(env(safe-area-inset-top) + 14px) 20px 8px;display:flex;align-items:center;justify-content:space-between}
+  .appbar .logo{display:flex;align-items:center;gap:9px}
+  .appbar .mark{width:30px;height:30px;border:1.4px solid var(--accent);border-radius:50%;position:relative;box-shadow:var(--glow)}
+  .appbar .mark::after{content:"";position:absolute;inset:5px;border-radius:50%;border:1px solid var(--accent-2)}
+  .appbar .name{font-size:18px;letter-spacing:4px;font-weight:500;color:var(--txt);text-shadow:var(--text-glow)}
+  .theme-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;font-size:16px;color:var(--txt);cursor:pointer}
+
+  .bulbs{display:var(--bulbs-display);justify-content:center;gap:13px;padding:4px 0 0}
+  .bulb{width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFF7E6,#F7D38C 70%,#D9A14E);box-shadow:0 0 7px 1.5px rgba(250,213,138,.85),0 0 14px 3px rgba(245,180,90,.4)}
+
+  .hero{padding:18px 20px 6px}
+  .hero h1{font-size:24px;font-weight:500;letter-spacing:1px;margin:0 0 4px;color:var(--txt)}
+  .hero p{margin:0;color:var(--sub);font-size:13px}
+  .big-actions{display:flex;gap:14px;padding:16px 20px 6px}
+  .ba{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:22px;padding:22px 16px;text-align:center;cursor:pointer;backdrop-filter:blur(var(--blur));box-shadow:var(--glow);transition:.15s}
+  .ba:active{transform:scale(.98)}
+  .ba .ic{width:54px;height:54px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--line)}
+  .ba h3{margin:0;font-size:16px;font-weight:500;letter-spacing:.5px;color:var(--txt)}
+  .ba p{margin:4px 0 0;font-size:11px;color:var(--sub)}
+  .section-h{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 6px}
+  .section-h .t{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--sub);font-weight:600}
+  .section-h .more{font-size:12px;color:var(--accent);cursor:pointer}
+
+  .topbar{display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top) + 12px) 16px 6px}
+  .back{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;font-size:19px;cursor:pointer;color:var(--txt);flex:0 0 auto;line-height:1}
+  .topbar h3{font-size:16px;margin:0;font-weight:500;letter-spacing:1px;color:var(--txt);flex:1}
+
+  .cam{flex:1;background:#0c0a08;position:relative;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+  .cam video,.cam .fallimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .cam.mirror video{transform:scaleX(-1)}
+  .cam .ghost{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .25s}
+  .cam.show-ghost .ghost{opacity:.42}
+  .cam .reticle{position:absolute;top:50%;left:50%;width:62%;height:64%;transform:translate(-50%,-54%);border:1px solid rgba(255,255,255,.28);border-radius:48% 48% 46% 46%;pointer-events:none}
+  .cam .hint{position:absolute;top:calc(env(safe-area-inset-top) + 14px);left:16px;right:16px;text-align:center;color:#F3E7D6;font-size:13px;letter-spacing:.3px;background:rgba(10,7,5,.5);padding:10px;border-radius:14px;backdrop-filter:blur(8px)}
+  .cam .hint b{color:#F5C97B}
+  .shutter-row{display:flex;align-items:center;justify-content:space-around;padding:22px 24px calc(26px + env(safe-area-inset-bottom));z-index:5}
+  .shutter{width:74px;height:74px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#eadfce);border:4px solid rgba(255,255,255,.35);cursor:pointer;box-shadow:var(--glow)}
+  .shutter:active{transform:scale(.93)}
+  .cam-side{min-width:64px;text-align:center}
+  .mini-btn{color:#F3E7D6;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:22px;padding:9px 14px;font-size:12.5px;cursor:pointer}
+  .cam-err{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#F3E7D6;text-align:center;padding:30px}
+
+  .compare-wrap{position:relative;width:100%;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#000;touch-action:none;box-shadow:0 12px 30px rgba(0,0,0,.25),0 0 0 1px var(--line),var(--glow)}
+  .compare-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .compare-wrap .after{clip-path:inset(0 0 0 50%)}
+  .divider{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--accent);transform:translateX(-1px)}
+  .knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#eadfce);display:flex;align-items:center;justify-content:center;font-size:14px;color:#3a2c20;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+  .lab{position:absolute;bottom:12px;padding:4px 12px;border-radius:18px;font-size:11px;letter-spacing:1px;color:#F3E7D6;background:rgba(10,7,5,.5);backdrop-filter:blur(4px)}
+  .lab.l{left:12px}.lab.r{right:12px}
+
+  .btn{display:block;width:100%;padding:15px;border-radius:15px;border:none;font-size:15px;font-weight:600;letter-spacing:.5px;cursor:pointer;margin-top:11px}
+  .btn-primary{background:var(--btn-bg);color:var(--btn-fg);box-shadow:var(--glow)}
+  .btn-primary:active{filter:brightness(.96)}
+  .btn-ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+
+  .ccard{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:13px;margin-bottom:11px;cursor:pointer;backdrop-filter:blur(var(--blur))}
+  .ccard:active{transform:scale(.99)}
+  .avatar{width:48px;height:48px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:500;color:var(--avatar-fg);font-size:18px;box-shadow:var(--glow);overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .ccard .meta{flex:1;min-width:0}
+  .ccard .nm{font-weight:500;font-size:16px;letter-spacing:.5px;color:var(--txt)}
+  .ccard .sm{color:var(--sub);font-size:11.5px;margin-top:2px}
+  .tag{display:inline-block;font-size:10.5px;padding:3px 9px;border-radius:11px;background:var(--accent-soft);color:var(--accent);margin:5px 5px 0 0;border:1px solid var(--line)}
+  .empty{text-align:center;color:var(--sub);padding:50px 20px;font-size:14px;line-height:1.8}
+
+  .tl-item{display:flex;gap:13px}
+  .tl-line{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;padding-top:13px}
+  .tl-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:var(--glow)}
+  .tl-bar{flex:1;width:1px;background:var(--line)}
+  .tl-body{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:13px;margin-bottom:11px;backdrop-filter:blur(var(--blur))}
+  .tl-body .dt{font-size:11px;color:var(--sub);letter-spacing:.5px}
+  .tl-thumbs{display:flex;gap:8px;margin-top:9px;cursor:pointer}
+  .tl-thumbs > div{flex:1;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:#000}
+  .tl-thumbs img{width:100%;height:100%;object-fit:cover}
+
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:60;align-items:flex-end}
+  .sheet-bg.open{display:flex}
+  .sheet{background:var(--sheet-bg);width:100%;max-width:520px;margin:0 auto;border-radius:26px 26px 0 0;padding:22px 22px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);max-height:86%;overflow-y:auto;border-top:1px solid var(--line)}
+  .sheet-bg.open .sheet{transform:translateY(0)}
+  .grab{width:38px;height:4px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+  .sheet h3{margin:0 0 4px;font-size:19px;font-weight:500;color:var(--txt)}
+  .field{margin-top:13px}
+  .field label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--sub);display:block;margin-bottom:6px}
+  .field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;font-family:inherit;background:var(--input-bg);color:var(--txt)}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent)}
+  .field select option{background:var(--sheet-bg);color:var(--txt)}
+  textarea{resize:none;height:70px;line-height:1.5}
+  .theme-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .tsw{flex:1;min-width:44%;border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;align-items:center;gap:9px;cursor:pointer;background:var(--input-bg);color:var(--txt);font-size:13px}
+  .tsw.on{outline:2px solid var(--accent);outline-offset:1px}
+  .tsw i{width:34px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.12)}
+  .sw-editorial{background:linear-gradient(120deg,#F4F0EA 55%,#A8736B 55%)}
+  .sw-vanity{background:linear-gradient(120deg,#0E0B09 55%,#F5C97B 55%)}
+  .sw-rose{background:linear-gradient(120deg,#FBF1F1 55%,#C77E8E 55%)}
+  .sw-ink{background:linear-gradient(120deg,#0F1620 55%,#8FB7D9 55%)}
+
+  .tabbar{flex:0 0 auto;display:flex;border-top:1px solid var(--line);background:var(--tab-bg);backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom)}
+  .tabbar button{flex:1;border:none;background:none;font-size:10px;letter-spacing:.5px;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:10px 0}
+  .tabbar button .i{font-size:19px}
+  .tabbar button.on{color:var(--accent);text-shadow:var(--text-glow)}
+
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--btn-bg);color:var(--btn-fg);padding:12px 20px;border-radius:14px;font-size:14px;font-weight:600;opacity:0;transition:.3s;z-index:90;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.25),var(--glow)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:95;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+  .lightbox.open{display:flex}
+  .lightbox .cw{width:100%;max-width:460px}
+</style>
+</head>
+<body data-theme="editorial">
+<div id="app">
+
+  <!-- HOME -->
+  <div class="view active" id="home">
+    <div class="appbar">
+      <div class="logo"><div class="mark"></div><div class="name serif">妆镜</div></div>
+      <button class="theme-btn" onclick="openTheme()">🎨</button>
+    </div>
+    <div class="bulbs" id="homeBulbs"></div>
+    <div class="hero">
+      <h1 class="serif" id="greet">今天也好好妆点每一张脸</h1>
+      <p>记录每一次妆容，沉淀你的作品</p>
+    </div>
+    <div class="big-actions">
+      <div class="ba" onclick="startShoot()"><div class="ic">✦</div><h3 class="serif">开始记录</h3><p>拍妆前 / 妆后</p></div>
+      <div class="ba" onclick="go('clients');renderClients()"><div class="ic">❀</div><h3 class="serif">客户档案</h3><p>作品时间轴</p></div>
+    </div>
+    <div class="section-h"><span class="t">最近作品</span><span class="more" onclick="go('clients');renderClients()">查看全部</span></div>
+    <div class="pad" id="recentList" style="flex:1"></div>
+    <div class="tabbar">
+      <button class="on" onclick="go('home');renderHome()"><span class="i">⌂</span>首页</button>
+      <button onclick="startShoot()"><span class="i">✦</span>记录</button>
+      <button onclick="go('clients');renderClients()"><span class="i">❀</span>客户</button>
+    </div>
+  </div>
+
+  <!-- CAMERA -->
+  <div class="view" id="cam">
+    <div class="cam" id="camBox">
+      <video id="video" autoplay playsinline muted></video>
+      <img class="ghost" id="ghostImg" alt="">
+      <img class="fallimg" id="fallImg" style="display:none" alt="">
+      <div class="reticle"></div>
+      <div class="hint" id="camHint">① 拍摄<b>妆前照</b></div>
+      <div class="cam-err" id="camErr" style="display:none">
+        <div>无法打开相机<br><span style="font-size:13px;opacity:.8">请允许相机权限，或用下方按钮拍照/选图</span></div>
+        <label class="mini-btn">选择照片<input type="file" accept="image/*" capture="environment" style="display:none" onchange="onFilePick(event)"></label>
+      </div>
+      <div class="shutter-row">
+        <div class="cam-side"><button class="mini-btn" onclick="cancelShoot()">取消</button></div>
+        <button class="shutter" onclick="capture()"></button>
+        <div class="cam-side"><button class="mini-btn" onclick="flipCam()">⟲ 翻转</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE -->
+  <div class="view" id="compare">
+    <div class="topbar"><button class="back" onclick="backHome()">‹</button><h3 class="serif">妆前妆后对比</h3></div>
+    <div class="pad">
+      <div class="compare-wrap" id="cmp">
+        <img id="cmpBefore" alt="妆前"><img id="cmpAfter" class="after" alt="妆后">
+        <div class="lab l">妆 前</div><div class="lab r">妆 后</div>
+        <div class="divider" id="cmpDiv"></div><div class="knob" id="cmpKnob">⇄</div>
+      </div>
+      <p class="muted" style="text-align:center;margin-top:10px">拖动滑块对比 · 满意就保存到客户档案</p>
+      <button class="btn btn-primary" onclick="openSave()">保存到客户档案</button>
+      <button class="btn btn-ghost" onclick="backHome()">放弃</button>
+    </div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="view" id="clients">
+    <div class="topbar"><button class="back" onclick="go('home');renderHome()">‹</button><h3 class="serif">客户档案</h3>
+      <button class="theme-btn" onclick="openNewClient()">＋</button></div>
+    <div class="pad" id="clientList" style="flex:1"></div>
+    <div class="tabbar">
+      <button onclick="go('home');renderHome()"><span class="i">⌂</span>首页</button>
+      <button onclick="startShoot()"><span class="i">✦</span>记录</button>
+      <button class="on"><span class="i">❀</span>客户</button>
+    </div>
+  </div>
+
+  <!-- CLIENT DETAIL -->
+  <div class="view" id="clientDetail">
+    <div class="topbar"><button class="back" onclick="go('clients');renderClients()">‹</button><h3 class="serif" id="cdName">客户</h3>
+      <button class="theme-btn" onclick="exportClient()" title="导出作品">⤴</button></div>
+    <div class="pad" id="cdBody"></div>
+  </div>
+</div>
+
+<!-- save sheet -->
+<div class="sheet-bg" id="saveSheet">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 class="serif">保存记录</h3>
+    <div class="field"><label>客户</label><select id="saveClient"></select></div>
+    <div id="newClientField" class="field" style="display:none"><label>新客户姓名</label><input id="newClientName" placeholder="输入姓名"></div>
+    <div class="field"><label>风格 / 场合</label><input id="saveStyle" placeholder="如：韩系水光 · 婚礼宴会"></div>
+    <div class="field"><label>产品 + 技巧笔记</label><textarea id="saveNote" placeholder="底妆、眼影、技巧要点…"></textarea></div>
+    <button class="btn btn-primary" onclick="saveRecord()">存档</button>
+    <button class="btn btn-ghost" onclick="closeSheet('saveSheet')">取消</button>
+  </div>
+</div>
+
+<!-- new client sheet -->
+<div class="sheet-bg" id="ncSheet">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 class="serif">新建客户</h3>
+    <div class="field"><label>姓名</label><input id="ncName" placeholder="输入姓名"></div>
+    <div class="field"><label>标签（逗号分隔，可空）</label><input id="ncTags" placeholder="如：敏感肌, 婚礼跟妆"></div>
+    <button class="btn btn-primary" onclick="createClient()">创建</button>
+    <button class="btn btn-ghost" onclick="closeSheet('ncSheet')">取消</button>
+  </div>
+</div>
+
+<!-- theme sheet -->
+<div class="sheet-bg" id="themeSheet">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 class="serif">选择风格</h3>
+    <p class="muted">整个 App 实时换肤，选择会被记住</p>
+    <div class="theme-grid" id="themeGrid">
+      <div class="tsw" data-t="editorial" onclick="setTheme('editorial')"><i class="sw-editorial"></i>轻奢浅</div>
+      <div class="tsw" data-t="vanity" onclick="setTheme('vanity')"><i class="sw-vanity"></i>镜灯暗</div>
+      <div class="tsw" data-t="rose" onclick="setTheme('rose')"><i class="sw-rose"></i>玫瑰石英</div>
+      <div class="tsw" data-t="ink" onclick="setTheme('ink')"><i class="sw-ink"></i>静谧墨蓝</div>
+    </div>
+    <button class="btn btn-ghost" onclick="closeSheet('themeSheet')">完成</button>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <div class="cw">
+    <div class="compare-wrap" id="lbCmp">
+      <img id="lbBefore"><img id="lbAfter" class="after">
+      <div class="lab l">妆 前</div><div class="lab r">妆 后</div>
+      <div class="divider" id="lbDiv"></div><div class="knob" id="lbKnob">⇄</div>
+    </div>
+    <p style="color:#bbb;text-align:center;font-size:12px;margin-top:14px">点击空白处关闭</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ THEME ============ */
+function setTheme(t){document.body.dataset.theme=t;try{localStorage.setItem('zm-theme',t)}catch(e){}
+  document.querySelectorAll('.tsw').forEach(s=>s.classList.toggle('on',s.dataset.t===t));
+  var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',getComputedStyle(document.body).getPropertyValue('--frame').trim()||'#1b1714');}
+(function(){let t='editorial';try{t=localStorage.getItem('zm-theme')||'editorial'}catch(e){}setTheme(t);})();
+(function(){let h='';for(let i=0;i<13;i++)h+='<span class="bulb"></span>';document.getElementById('homeBulbs').innerHTML=h;})();
+function openTheme(){document.querySelectorAll('.tsw').forEach(s=>s.classList.toggle('on',s.dataset.t===document.body.dataset.theme));openSheet('themeSheet');}
+
+/* ============ NAV ============ */
+function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));const el=document.getElementById(id);el.classList.add('active');el.scrollTop=0;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1900);}
+function openSheet(id){document.getElementById(id).classList.add('open');}
+function closeSheet(id){document.getElementById(id).classList.remove('open');}
+
+/* ============ INDEXEDDB ============ */
+let db;
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('zingmirror',1);
+  r.onupgradeneeded=e=>{const d=e.target.result;
+    if(!d.objectStoreNames.contains('clients'))d.createObjectStore('clients',{keyPath:'id'});
+    if(!d.objectStoreNames.contains('records')){const s=d.createObjectStore('records',{keyPath:'id'});s.createIndex('clientId','clientId');}};
+  r.onsuccess=e=>{db=e.target.result;res();};r.onerror=e=>rej(e);});}
+function tx(store,mode){return db.transaction(store,mode).objectStore(store);}
+function put(store,val){return new Promise((res,rej)=>{const r=tx(store,'readwrite').put(val);r.onsuccess=()=>res(val);r.onerror=rej;});}
+function getAll(store){return new Promise((res,rej)=>{const r=tx(store,'readonly').getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=rej;});}
+function getRecordsByClient(cid){return new Promise((res,rej)=>{const r=tx('records','readonly').index('clientId').getAll(cid);r.onsuccess=()=>res(r.result||[]);r.onerror=rej;});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+/* ============ CAMERA ============ */
+let stream=null, facing='environment', pendingBefore=null, pendingAfter=null, shootStage='before';
+const video=document.getElementById('video');
+async function startShoot(){pendingBefore=null;pendingAfter=null;shootStage='before';
+  document.getElementById('ghostImg').style.display='none';document.getElementById('camBox').classList.remove('show-ghost');
+  document.getElementById('camHint').innerHTML='① 拍摄<b>妆前照</b>';
+  go('cam');await startCam();}
+async function startCam(){
+  document.getElementById('camErr').style.display='none';document.getElementById('fallImg').style.display='none';video.style.display='';
+  try{stopCam();stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing},audio:false});video.srcObject=stream;
+    document.getElementById('camBox').classList.toggle('mirror',facing==='user');
+  }catch(e){document.getElementById('camErr').style.display='flex';}
+}
+function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
+function flipCam(){facing=facing==='environment'?'user':'environment';startCam();}
+function cancelShoot(){stopCam();backHome();}
+function downscale(canvas,max){let w=canvas.width,h=canvas.height;if(Math.max(w,h)<=max)return canvas;const s=max/Math.max(w,h);const c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext('2d').drawImage(canvas,0,0,c.width,c.height);return c;}
+function capture(){
+  if(!stream){toast('相机未就绪');return;}
+  const vw=video.videoWidth,vh=video.videoHeight;if(!vw){toast('稍候，相机加载中');return;}
+  const c=document.createElement('canvas');c.width=vw;c.height=vh;const ctx=c.getContext('2d');
+  if(facing==='user'){ctx.translate(vw,0);ctx.scale(-1,1);}
+  ctx.drawImage(video,0,0);
+  const data=downscale(c,1280).toDataURL('image/jpeg',0.82);
+  handleShot(data);
+}
+function onFilePick(ev){const f=ev.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>handleShot(rd.result);rd.readAsDataURL(f);}
+function handleShot(data){
+  if(shootStage==='before'){pendingBefore=data;shootStage='after';
+    const g=document.getElementById('ghostImg');g.src=data;g.style.display='';document.getElementById('camBox').classList.add('show-ghost');
+    document.getElementById('camHint').innerHTML='② 拍摄<b>妆后照</b> · 半透明轮廓帮你对齐';
+    toast('妆前照已拍 ✓ 化好妆再拍妆后');
+  }else{pendingAfter=data;stopCam();
+    document.getElementById('cmpBefore').src=pendingBefore;document.getElementById('cmpAfter').src=pendingAfter;
+    go('compare');initSlider('cmp','cmpAfter','cmpDiv','cmpKnob');
+  }
+}
+function backHome(){stopCam();go('home');renderHome();}
+
+/* ============ COMPARE SLIDER ============ */
+function initSlider(wrapId,afterId,divId,knobId){
+  const wrap=document.getElementById(wrapId),after=document.getElementById(afterId),div=document.getElementById(divId),knob=document.getElementById(knobId);
+  let dragging=false;
+  function set(x){const r=wrap.getBoundingClientRect();let p=(x-r.left)/r.width;p=Math.max(0,Math.min(1,p));after.style.clipPath=`inset(0 0 0 ${p*100}%)`;div.style.left=knob.style.left=(p*100)+'%';}
+  const down=e=>{dragging=true;set((e.touches?e.touches[0]:e).clientX);};
+  const move=e=>{if(dragging){set((e.touches?e.touches[0]:e).clientX);if(e.cancelable)e.preventDefault();}};
+  const up=()=>dragging=false;
+  wrap.onmousedown=down;wrap.ontouchstart=down;
+  window.addEventListener('mousemove',move);window.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('mouseup',up);window.addEventListener('touchend',up);
+  const r=wrap.getBoundingClientRect();set(r.left+r.width*0.5);
+}
+
+/* ============ SAVE ============ */
+async function openSave(){
+  const cs=await getAll('clients');
+  document.getElementById('saveClient').innerHTML=cs.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')+'<option value="__new">+ 新客户</option>';
+  toggleNewClient();document.getElementById('saveStyle').value='';document.getElementById('saveNote').value='';
+  openSheet('saveSheet');
+}
+function toggleNewClient(){const v=document.getElementById('saveClient').value;document.getElementById('newClientField').style.display=v==='__new'?'block':'none';}
+async function saveRecord(){
+  let cid=document.getElementById('saveClient').value;
+  if(cid==='__new'){const nm=document.getElementById('newClientName').value.trim()||'未命名客户';const c={id:uid(),name:nm,tags:[],created:Date.now()};await put('clients',c);cid=c.id;}
+  const rec={id:uid(),clientId:cid,date:new Date().toISOString().slice(0,10),ts:Date.now(),
+    style:document.getElementById('saveStyle').value.trim(),note:document.getElementById('saveNote').value.trim(),
+    before:pendingBefore,after:pendingAfter};
+  await put('records',rec);closeSheet('saveSheet');toast('已存档 ✓');pendingBefore=pendingAfter=null;
+  go('home');renderHome();
+}
+
+/* ============ CLIENTS ============ */
+const palette=['#C99B6E','#C98A82','#A89A6E','#9D8FA6','#8AA39B','#B98A6E'];
+function colorFor(id){let h=0;for(const ch of id)h=(h*31+ch.charCodeAt(0))%palette.length;return palette[h];}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+async function renderClients(){
+  const cs=await getAll('clients');const recs=await getAll('records');
+  const cont=document.getElementById('clientList');
+  if(!cs.length){cont.innerHTML='<div class="empty">还没有客户档案<br>去「开始记录」拍一组妆容，保存时即可创建客户</div>';return;}
+  cs.sort((a,b)=>(b.created||0)-(a.created||0));
+  cont.innerHTML=cs.map(c=>{const rs=recs.filter(r=>r.clientId===c.id);const last=rs.sort((a,b)=>b.ts-a.ts)[0];
+    const av=last&&last.after?`<img src="${last.after}">`:esc(c.name[0]||'?');
+    return `<div class="ccard" onclick="openClient('${c.id}')">
+      <div class="avatar" style="background:${colorFor(c.id)}">${av}</div>
+      <div class="meta"><div class="nm serif">${esc(c.name)}</div>
+        <div class="sm">${rs.length} 次记录${last?' · 最近 '+last.date:''}</div>
+        <div>${(c.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>
+      <div style="color:var(--accent);opacity:.5;font-size:18px">›</div></div>`;}).join('');
+}
+let currentClient=null,currentRecords=[];
+async function openClient(id){
+  const cs=await getAll('clients');currentClient=cs.find(c=>c.id===id);
+  currentRecords=(await getRecordsByClient(id)).sort((a,b)=>b.ts-a.ts);
+  document.getElementById('cdName').textContent=currentClient.name;
+  const body=document.getElementById('cdBody');
+  if(!currentRecords.length){body.innerHTML='<div class="empty">还没有作品记录</div>';}
+  else{body.innerHTML=`<div class="muted" style="margin:4px 0 14px">共 ${currentRecords.length} 次作品 · 点右上角 ⤴ 导出九宫格</div>`+
+    currentRecords.map((r,i)=>`<div class="tl-item">
+      <div class="tl-line"><div class="tl-dot"></div>${i<currentRecords.length-1?'<div class="tl-bar"></div>':''}</div>
+      <div class="tl-body"><div class="dt">${r.date}</div>
+        ${r.style?`<div class="serif" style="font-size:15px;margin:3px 0;color:var(--txt)">${esc(r.style)}</div>`:''}
+        ${r.note?`<div style="font-size:12.5px;color:var(--txt-soft);line-height:1.6">${esc(r.note)}</div>`:''}
+        <div class="tl-thumbs" onclick="openLightbox('${r.id}')"><div><img src="${r.before}"></div><div><img src="${r.after}"></div></div>
+      </div></div>`).join('');}
+  go('clientDetail');
+}
+function openNewClient(){document.getElementById('ncName').value='';document.getElementById('ncTags').value='';openSheet('ncSheet');}
+async function createClient(){const nm=document.getElementById('ncName').value.trim();if(!nm){toast('请输入姓名');return;}
+  const tags=document.getElementById('ncTags').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
+  await put('clients',{id:uid(),name:nm,tags,created:Date.now()});closeSheet('ncSheet');renderClients();toast('客户已创建 ✓');}
+
+function openLightbox(rid){const r=currentRecords.find(x=>x.id===rid);if(!r)return;
+  document.getElementById('lbBefore').src=r.before;document.getElementById('lbAfter').src=r.after;
+  document.getElementById('lightbox').classList.add('open');setTimeout(()=>initSlider('lbCmp','lbAfter','lbDiv','lbKnob'),50);}
+
+/* ============ HOME RECENT ============ */
+async function renderHome(){
+  const recs=(await getAll('records')).sort((a,b)=>b.ts-a.ts).slice(0,6);
+  const cont=document.getElementById('recentList');
+  if(!recs.length){cont.innerHTML='<div class="empty">还没有作品<br>点上方「开始记录」拍下第一组妆前妆后吧</div>';return;}
+  const cs=await getAll('clients');const nameOf=id=>{const c=cs.find(x=>x.id===id);return c?c.name:'';};
+  cont.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
+    recs.map(r=>`<div style="aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#000;position:relative" onclick="openClient('${r.clientId}')">
+      <img src="${r.after}" style="width:100%;height:100%;object-fit:cover">
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:4px 7px;font-size:10px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.6))">${esc(nameOf(r.clientId))}</div>
+    </div>`).join('')+'</div>';
+}
+
+/* ============ EXPORT ============ */
+function loadImg(src){return new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=src;});}
+async function exportClient(){
+  if(!currentRecords||!currentRecords.length){toast('暂无作品可导出');return;}
+  toast('正在生成九宫格…');
+  const imgs=await Promise.all(currentRecords.slice(0,9).map(r=>loadImg(r.after)));
+  const S=1080,n=imgs.length,cols=n<=1?1:(n<=4?2:3),rows=Math.ceil(n/cols),gap=12;
+  const cw=(S-gap*(cols+1))/cols, ch=cw*4/3, H=Math.round(ch*rows+gap*(rows+1)+70);
+  const cv=document.createElement('canvas');cv.width=S;cv.height=H;const x=cv.getContext('2d');
+  x.fillStyle='#1b1714';x.fillRect(0,0,S,H);
+  imgs.forEach((im,i)=>{const r=Math.floor(i/cols),c=i%cols;const dx=gap+c*(cw+gap),dy=gap+r*(ch+gap);
+    const ir=im.width/im.height,tr=cw/ch;let sw,sh,sx,sy;if(ir>tr){sh=im.height;sw=sh*tr;sx=(im.width-sw)/2;sy=0;}else{sw=im.width;sh=sw/tr;sx=0;sy=(im.height-sh)/2;}
+    roundClip(x,dx,dy,cw,ch,14);x.drawImage(im,sx,sy,sw,sh,dx,dy,cw,ch);x.restore();});
+  x.fillStyle='rgba(245,201,123,.95)';x.font='500 26px "Songti SC",serif';x.textAlign='center';
+  x.fillText('妆镜 · ZING MIRROR　|　'+(currentClient?currentClient.name:''),S/2,H-26);
+  cv.toBlob(async b=>{await shareOrDownload(b,(currentClient?currentClient.name:'作品')+'-九宫格.jpg','作品集');},'image/jpeg',0.9);
+}
+function roundClip(x,dx,dy,w,h,r){x.save();x.beginPath();x.moveTo(dx+r,dy);x.arcTo(dx+w,dy,dx+w,dy+h,r);x.arcTo(dx+w,dy+h,dx,dy+h,r);x.arcTo(dx,dy+h,dx,dy,r);x.arcTo(dx,dy,dx+w,dy,r);x.closePath();x.clip();}
+async function shareOrDownload(blob,filename,title){
+  const file=new File([blob],filename,{type:blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title});return;}catch(e){if(e.name==='AbortError')return;}}
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+  toast('已下载，可在相册中分享');
+}
+
+/* ============ SELF-CONTAINED PWA (inline icon + manifest, no external files) ============ */
+function injectManifest(){
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="104" fill="#1b1714"/><circle cx="256" cy="256" r="150" fill="none" stroke="#F5C97B" stroke-width="13"/><circle cx="256" cy="256" r="104" fill="none" stroke="#E7A79E" stroke-width="7"/><circle cx="214" cy="214" r="22" fill="#FFF7E6" opacity="0.85"/></svg>';
+  const icon='data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+  const apple=document.createElement('link');apple.rel='apple-touch-icon';apple.href=icon;document.head.appendChild(apple);
+  const manifest={name:'妆镜·Pro',short_name:'妆镜',start_url:'.',scope:'.',display:'standalone',orientation:'portrait',
+    background_color:'#F4F0EA',theme_color:'#1b1714',icons:[{src:icon,sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
+  try{const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+    const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(blob);document.head.appendChild(l);}catch(e){}
+}
+/* ============ INIT ============ */
+(async function(){injectManifest();try{await openDB();}catch(e){console.error(e);}
+  const h=new Date().getHours();document.getElementById('greet').textContent=h<11?'早安，今天也好好妆点每一张脸':h<18?'午后好，记录此刻的美':'晚上好，沉淀今天的作品';
+  renderHome();
+})();
+</script>
+</body>
+</html>
