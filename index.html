@@ -166,6 +166,14 @@
   .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:95;flex-direction:column;align-items:center;justify-content:center;padding:20px}
   .lightbox.open{display:flex}
   .lightbox .cw{width:100%;max-width:460px}
+  .review-pill{display:block;text-align:center;margin:2px 0 12px;color:var(--accent);font-size:14px;letter-spacing:1px;font-weight:600}
+  .review-img{width:100%;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 12px 30px rgba(0,0,0,.25),0 0 0 1px var(--line),var(--glow)}
+  .review-img img{width:100%;height:100%;object-fit:cover}
+  .stepbar{display:flex;gap:8px;justify-content:center;margin:2px 0 8px}
+  .stepbar .s{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
+  .stepbar .d{width:20px;height:20px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px}
+  .stepbar .s.done .d,.stepbar .s.cur .d{background:var(--accent);color:var(--avatar-fg);border-color:transparent}
+  .stepbar .ln{width:22px;height:1px;background:var(--line);align-self:center}
 </style>
 </head>
 <body data-theme="editorial">
@@ -202,7 +210,7 @@
       <img class="ghost" id="ghostImg" alt="">
       <img class="fallimg" id="fallImg" style="display:none" alt="">
       <div class="reticle"></div>
-      <div class="hint" id="camHint">① 拍摄<b>妆前照</b></div>
+      <div class="hint" id="camHint">第 1 步 / 共 2 步 · 拍摄<b>妆前照</b></div>
       <div class="cam-err" id="camErr" style="display:none">
         <div>无法打开相机<br><span style="font-size:13px;opacity:.8">请允许相机权限，或用下方按钮拍照/选图</span></div>
         <label class="mini-btn">选择照片<input type="file" accept="image/*" capture="environment" style="display:none" onchange="onFilePick(event)"></label>
@@ -212,6 +220,23 @@
         <button class="shutter" onclick="capture()"></button>
         <div class="cam-side"><button class="mini-btn" onclick="flipCam()">⟲ 翻转</button></div>
       </div>
+    </div>
+  </div>
+
+  <!-- SHOOT REVIEW (妆前照确认) -->
+  <div class="view" id="shootReview">
+    <div class="topbar"><button class="back" onclick="cancelShoot()">‹</button><h3 class="serif">妆前照已拍好</h3></div>
+    <div class="pad">
+      <div class="stepbar">
+        <div class="s done"><span class="d">✓</span>妆前</div><div class="ln"></div>
+        <div class="s cur"><span class="d">2</span>妆后</div><div class="ln"></div>
+        <div class="s"><span class="d">3</span>对比保存</div>
+      </div>
+      <div class="review-pill">① 妆前照已拍好</div>
+      <div class="review-img"><img id="reviewImg" alt="妆前照"></div>
+      <p class="muted" style="text-align:center;margin-top:12px">化好妆后，点下方继续拍妆后照<br>系统会用这张半透明叠加帮你对齐</p>
+      <button class="btn btn-primary" onclick="proceedToAfter()">继续拍妆后照 →</button>
+      <button class="btn btn-ghost" onclick="retakeBefore()">重拍妆前照</button>
     </div>
   </div>
 
@@ -338,7 +363,7 @@ let stream=null, facing='environment', pendingBefore=null, pendingAfter=null, sh
 const video=document.getElementById('video');
 async function startShoot(){pendingBefore=null;pendingAfter=null;shootStage='before';
   document.getElementById('ghostImg').style.display='none';document.getElementById('camBox').classList.remove('show-ghost');
-  document.getElementById('camHint').innerHTML='① 拍摄<b>妆前照</b>';
+  document.getElementById('camHint').innerHTML='第 1 步 / 共 2 步 · 拍摄<b>妆前照</b>';
   go('cam');await startCam();}
 async function startCam(){
   document.getElementById('camErr').style.display='none';document.getElementById('fallImg').style.display='none';video.style.display='';
@@ -361,15 +386,21 @@ function capture(){
 }
 function onFilePick(ev){const f=ev.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>handleShot(rd.result);rd.readAsDataURL(f);}
 function handleShot(data){
-  if(shootStage==='before'){pendingBefore=data;shootStage='after';
-    const g=document.getElementById('ghostImg');g.src=data;g.style.display='';document.getElementById('camBox').classList.add('show-ghost');
-    document.getElementById('camHint').innerHTML='② 拍摄<b>妆后照</b> · 半透明轮廓帮你对齐';
-    toast('妆前照已拍 ✓ 化好妆再拍妆后');
+  if(shootStage==='before'){pendingBefore=data;stopCam();
+    document.getElementById('reviewImg').src=data;go('shootReview');toast('妆前照已拍 ✓');
   }else{pendingAfter=data;stopCam();
     document.getElementById('cmpBefore').src=pendingBefore;document.getElementById('cmpAfter').src=pendingAfter;
     go('compare');initSlider('cmp','cmpAfter','cmpDiv','cmpKnob');
   }
 }
+async function proceedToAfter(){shootStage='after';
+  const g=document.getElementById('ghostImg');g.src=pendingBefore;g.style.display='';document.getElementById('camBox').classList.add('show-ghost');
+  document.getElementById('camHint').innerHTML='第 2 步 / 共 2 步 · 拍摄<b>妆后照</b> · 对齐妆前轮廓';
+  go('cam');await startCam();}
+async function retakeBefore(){shootStage='before';pendingBefore=null;
+  document.getElementById('ghostImg').style.display='none';document.getElementById('camBox').classList.remove('show-ghost');
+  document.getElementById('camHint').innerHTML='第 1 步 / 共 2 步 · 拍摄<b>妆前照</b>';
+  go('cam');await startCam();}
 function backHome(){stopCam();go('home');renderHome();}
 
 /* ============ COMPARE SLIDER ============ */
